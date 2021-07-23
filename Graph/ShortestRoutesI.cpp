@@ -1,6 +1,7 @@
-// Labyrinth.cpp
+// ShortestRoutesI.cpp
 
-// BFS on Grid
+/*Dijkstra's Algorithm
+Single Source Shortest Path Algorithm*/
 
 /*<!-- Created By Black Devil -->*/
 #include <bits/stdc++.h>
@@ -25,7 +26,6 @@ using namespace std;
 #define setbits(x)         __builtin_popcountll(x)
 #define zrobits(x)         __builtin_ctzll(x)
 #define mod                1000000007
-#define inf                1e18
 #define ps(x, y)           fixed<<setprecision(y)<<x
 #define mk(arr,n,type)     type *arr = new type[n];
 #define w(t)               int x; cin>>x; while(x--)
@@ -43,16 +43,10 @@ void file_i_o(){
 	#endif
 }
 
-
-const int mxN =1e3, di[4] = {1, 0, -1, 0}, dj[4]= {0, 1, 0, -1};
-int n, m, si, sj, ti, tj, d[mxN][mxN];
-const char dc[4] = {'D', 'R', 'U', 'L'};
-string s[mxN], p[mxN];
-
-bool e(int i, int j){
-	return i>=0 and i<n and j>=0 and j<m and s[i][j] == '.';
-}
-
+const int mxN = 1e5;
+int n, m;
+vector<array<ll, 2>> adj[mxN];
+ll d[mxN];
 
 
 int main(int argc, char const *argv[])
@@ -63,50 +57,34 @@ int main(int argc, char const *argv[])
 	clock_t start, end;
     start = clock();
 
-    cin>>n>>m;
-    loop(i, 0, n-1){
-    	cin>>s[i];
-    	loop(j, 0, m-1){
-    		if(s[i][j] == 'A')
-    			si=i, sj=j; //s[i][j] = '.';
-    		if(s[i][j]=='B')
-    			ti=i, tj=j, s[i][j] = '.';
-    	}
-    	p[i] = string(m, 0);
-    }
+	cin >> n >> m;
+	loop(i, 0, m-1){
+		int a, b, c;
+		cin>>a>>b>>c, --a, --b;
+		adj[a].pb({c, b});
+	}
 
-    queue<array<int, 2>> qu;
-    qu.push({si, sj});
-    while(qu.size()){
-    	array<int, 2> u=qu.front();
-    	qu.pop();
-    	// s[u[0]][u[1]]='#';
-    	for(int k = 0; k<4; ++k){
-    		int ni=u[0]+di[k], nj = u[1]+dj[k];
-    		if(not e(ni, nj))
-    			continue;
-			qu.push({ni, nj});
-			s[ni][nj] = '#';
-			d[ni][nj] = k;
-			p[ni][nj]=dc[k]; 
-    	}
-    }
-    if(p[ti][tj]){
-    	cout<<"YES\n";
-    	string t;
-    	while(ti^si or tj^sj){
-    		t += p[ti][tj];
-    		int dd=d[ti][tj]^2;
-    		ti+=di[dd];
-    		tj+=dj[dd];
-    	}
-    	reverse(t.begin(), t.end());
-    	cout<<t.size()<<"\n";
-    	cout<<t;
-    }else{
-    	cout<<"NO\n";
-    }
+	priority_queue<array<ll, 2>, vector<array<ll, 2>>, greater<array<ll, 2>>>pq;
 	
+	pq.push({0, 0});
+	memset(d, 0x3f, sizeof(d));
+	d[0] = 0;
+	while(pq.size()){
+		array<ll, 2> u = pq.top();
+		pq.pop();
+		if(u[0]>d[u[1]])
+			continue;
+		for(array<ll, 2> v: adj[u[1]]){
+			if(d[v[1]]>u[0]+v[0]){
+				d[v[1]]=u[0]+v[0];
+				pq.push({d[v[1]], v[1]});
+			}
+		}
+	}
+
+	loop(i, 0, n-1){
+		cout<<d[i]<<" ";
+	}
 
 	end = clock();
 	

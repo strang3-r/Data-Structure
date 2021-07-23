@@ -1,6 +1,6 @@
-// Labyrinth.cpp
+// ShortestRoutesII.cpp
 
-// BFS on Grid
+/*Floyd Warshalls Algorithm, All Source Shortest Path*/
 
 /*<!-- Created By Black Devil -->*/
 #include <bits/stdc++.h>
@@ -43,17 +43,9 @@ void file_i_o(){
 	#endif
 }
 
-
-const int mxN =1e3, di[4] = {1, 0, -1, 0}, dj[4]= {0, 1, 0, -1};
-int n, m, si, sj, ti, tj, d[mxN][mxN];
-const char dc[4] = {'D', 'R', 'U', 'L'};
-string s[mxN], p[mxN];
-
-bool e(int i, int j){
-	return i>=0 and i<n and j>=0 and j<m and s[i][j] == '.';
-}
-
-
+const int mxN=500;
+int n, m, q; 
+ll d[mxN][mxN];
 
 int main(int argc, char const *argv[])
 {
@@ -63,50 +55,31 @@ int main(int argc, char const *argv[])
 	clock_t start, end;
     start = clock();
 
-    cin>>n>>m;
-    loop(i, 0, n-1){
-    	cin>>s[i];
-    	loop(j, 0, m-1){
-    		if(s[i][j] == 'A')
-    			si=i, sj=j; //s[i][j] = '.';
-    		if(s[i][j]=='B')
-    			ti=i, tj=j, s[i][j] = '.';
-    	}
-    	p[i] = string(m, 0);
-    }
+	cin>>n>>m>>q;
+	memset(d, 0x3f, sizeof(d));
 
-    queue<array<int, 2>> qu;
-    qu.push({si, sj});
-    while(qu.size()){
-    	array<int, 2> u=qu.front();
-    	qu.pop();
-    	// s[u[0]][u[1]]='#';
-    	for(int k = 0; k<4; ++k){
-    		int ni=u[0]+di[k], nj = u[1]+dj[k];
-    		if(not e(ni, nj))
-    			continue;
-			qu.push({ni, nj});
-			s[ni][nj] = '#';
-			d[ni][nj] = k;
-			p[ni][nj]=dc[k]; 
-    	}
-    }
-    if(p[ti][tj]){
-    	cout<<"YES\n";
-    	string t;
-    	while(ti^si or tj^sj){
-    		t += p[ti][tj];
-    		int dd=d[ti][tj]^2;
-    		ti+=di[dd];
-    		tj+=dj[dd];
-    	}
-    	reverse(t.begin(), t.end());
-    	cout<<t.size()<<"\n";
-    	cout<<t;
-    }else{
-    	cout<<"NO\n";
-    }
-	
+	loop(i, 0, m-1){
+		ll a, b, c;
+		cin>>a>>b>>c, --a, --b;
+		d[a][b]=min(d[a][b], c);
+		d[b][a]=min(d[b][a], c);
+
+	}
+	loop(i, 0, n-1){
+		d[i][i] = 0;
+	}
+	loop(k, 0, n-1){
+		loop(i, 0, n-1){
+			loop(j, 0, n-1){
+				d[i][j] = min(d[i][j], d[i][k]+d[k][j]);
+			}
+		}
+	}
+	while(q--){
+		int a,b;
+		cin>>a>>b, --a, --b;
+		cout<<(d[a][b]>=1e18 ? -1 : d[a][b])<<endl;
+	}
 
 	end = clock();
 	

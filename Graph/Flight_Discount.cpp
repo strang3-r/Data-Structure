@@ -1,6 +1,4 @@
-// Labyrinth.cpp
-
-// BFS on Grid
+// Flight_Discount.cpp
 
 /*<!-- Created By Black Devil -->*/
 #include <bits/stdc++.h>
@@ -13,6 +11,7 @@ using namespace std;
 #define endl               "\n"
 #define ll                 long long
 #define ld                 long double
+#define ar			   	   array
 #define loop(a, b, c)      for(ll (a) = (b); (a)<=(c); (a)++)
 #define looprev(a, b, c)   for(ll (a) = (b); (a)>=(c); (a)--)
 #define pb                 push_back
@@ -38,22 +37,35 @@ void file_i_o(){
 	cin.tie(0);
 	cout.tie(0);
  	#ifndef ONLINE_JUDGE
-		freopen("C:\\Users\\singh\\OneDrive\\Desktop\\input.txt", "r", stdin);
-		freopen("C:\\Users\\singh\\OneDrive\\Desktop\\output.txt", "w", stdout);
-	#endif
+			freopen("C:\\Users\\singh\\OneDrive\\Desktop\\input.txt", "r", stdin);
+			freopen("C:\\Users\\singh\\OneDrive\\Desktop\\output.txt", "w", stdout);
+	#endif 
 }
 
+const int mxN = 1e5;
+int n, m;
+vector<ar<ll, 2>> adj1[mxN], adj2[mxN];
+ll d1[mxN], d2[mxN];
 
-const int mxN =1e3, di[4] = {1, 0, -1, 0}, dj[4]= {0, 1, 0, -1};
-int n, m, si, sj, ti, tj, d[mxN][mxN];
-const char dc[4] = {'D', 'R', 'U', 'L'};
-string s[mxN], p[mxN];
-
-bool e(int i, int j){
-	return i>=0 and i<n and j>=0 and j<m and s[i][j] == '.';
+void solve(int u, vector<ar<ll, 2>> adj[mxN], ll d[mxN]){
+	memset(d, 0x3f, sizeof(d1));
+	d[u] = 0;
+	priority_queue<ar<ll, 2>, vector<ar<ll, 2>>, greater<ar<ll, 2>>> pq;
+	pq.push({0, u});
+	while(pq.size()){
+		ar<ll, 2> u = pq.top();
+		pq.pop();
+		if(u[0]>d[u[1]])
+			continue;
+		for(ar<ll, 2> v: adj[u[1]]) {
+			if(d[v[1]]>u[0]+v[0]) {
+				d[v[1]] = u[0]+v[0];
+				pq.push({d[v[1]], v[1]}); 
+			}
+		}
+		
+	}
 }
-
-
 
 int main(int argc, char const *argv[])
 {
@@ -63,50 +75,26 @@ int main(int argc, char const *argv[])
 	clock_t start, end;
     start = clock();
 
-    cin>>n>>m;
-    loop(i, 0, n-1){
-    	cin>>s[i];
-    	loop(j, 0, m-1){
-    		if(s[i][j] == 'A')
-    			si=i, sj=j; //s[i][j] = '.';
-    		if(s[i][j]=='B')
-    			ti=i, tj=j, s[i][j] = '.';
-    	}
-    	p[i] = string(m, 0);
-    }
+	cin>>n>>m;
+	loop(i, 0, m-1){
+		ll a, b, c;
+		cin>>a>>b>>c, --a, --b;
+		adj1[a].pb({c, b});
+		adj2[b].pb({c, a});
+	}
 
-    queue<array<int, 2>> qu;
-    qu.push({si, sj});
-    while(qu.size()){
-    	array<int, 2> u=qu.front();
-    	qu.pop();
-    	// s[u[0]][u[1]]='#';
-    	for(int k = 0; k<4; ++k){
-    		int ni=u[0]+di[k], nj = u[1]+dj[k];
-    		if(not e(ni, nj))
-    			continue;
-			qu.push({ni, nj});
-			s[ni][nj] = '#';
-			d[ni][nj] = k;
-			p[ni][nj]=dc[k]; 
-    	}
-    }
-    if(p[ti][tj]){
-    	cout<<"YES\n";
-    	string t;
-    	while(ti^si or tj^sj){
-    		t += p[ti][tj];
-    		int dd=d[ti][tj]^2;
-    		ti+=di[dd];
-    		tj+=dj[dd];
-    	}
-    	reverse(t.begin(), t.end());
-    	cout<<t.size()<<"\n";
-    	cout<<t;
-    }else{
-    	cout<<"NO\n";
-    }
-	
+	solve(0, adj1, d1);
+	solve(n-1, adj2, d2);
+
+	ll ans = inf;
+
+	loop(i, 0, n-1){
+		for(ar<ll, 2> j : adj1[i])
+			ans = min(ans, d1[i] + d2[j[1]] + j[0]/2);
+	}
+
+	cout<<ans;
+
 
 	end = clock();
 	

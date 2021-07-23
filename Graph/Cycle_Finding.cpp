@@ -1,6 +1,6 @@
-// Labyrinth.cpp
+// Cycle_Finding.cpp
 
-// BFS on Grid
+/*Bellman Ford Algorithm*/
 
 /*<!-- Created By Black Devil -->*/
 #include <bits/stdc++.h>
@@ -43,17 +43,27 @@ void file_i_o(){
 	#endif
 }
 
+const int mxN=2.5e3;
+int n, m, p[mxN];
+ll ans[mxN];
+ll d[mxN];
+vector<array<ll, 2>>adj[mxN];
+vector<int> adj2[mxN];
+bool vis[mxN], vis2[mxN];
 
-const int mxN =1e3, di[4] = {1, 0, -1, 0}, dj[4]= {0, 1, 0, -1};
-int n, m, si, sj, ti, tj, d[mxN][mxN];
-const char dc[4] = {'D', 'R', 'U', 'L'};
-string s[mxN], p[mxN];
-
-bool e(int i, int j){
-	return i>=0 and i<n and j>=0 and j<m and s[i][j] == '.';
+void dfs(int u){
+	vis[u]=1;
+	for(int v: adj2[u])
+		if(not vis[v])
+			dfs(v);
 }
 
-
+void dfs2(int u){
+	vis2[u]=1;
+	for(array<ll, 2> v: adj[u])
+		if(not vis2[v[1]])
+			dfs2(v[1]);
+}
 
 int main(int argc, char const *argv[])
 {
@@ -63,50 +73,80 @@ int main(int argc, char const *argv[])
 	clock_t start, end;
     start = clock();
 
-    cin>>n>>m;
-    loop(i, 0, n-1){
-    	cin>>s[i];
-    	loop(j, 0, m-1){
-    		if(s[i][j] == 'A')
-    			si=i, sj=j; //s[i][j] = '.';
-    		if(s[i][j]=='B')
-    			ti=i, tj=j, s[i][j] = '.';
-    	}
-    	p[i] = string(m, 0);
-    }
+	cin >> n >> m;
+	loop(i, 0, m-1){
+		int a, b, c;
+		cin>>a>>b>>c, --a, --b;
+		adj[a].pb({c, b});
+		adj2[b].pb(a);
+	}
+	// priority_queue<array<ll, 2>, vector<array<ll, 2>>, greater<array<ll, 2>>>pq;
 
-    queue<array<int, 2>> qu;
-    qu.push({si, sj});
-    while(qu.size()){
-    	array<int, 2> u=qu.front();
-    	qu.pop();
-    	// s[u[0]][u[1]]='#';
-    	for(int k = 0; k<4; ++k){
-    		int ni=u[0]+di[k], nj = u[1]+dj[k];
-    		if(not e(ni, nj))
-    			continue;
-			qu.push({ni, nj});
-			s[ni][nj] = '#';
-			d[ni][nj] = k;
-			p[ni][nj]=dc[k]; 
-    	}
-    }
-    if(p[ti][tj]){
-    	cout<<"YES\n";
-    	string t;
-    	while(ti^si or tj^sj){
-    		t += p[ti][tj];
-    		int dd=d[ti][tj]^2;
-    		ti+=di[dd];
-    		tj+=dj[dd];
-    	}
-    	reverse(t.begin(), t.end());
-    	cout<<t.size()<<"\n";
-    	cout<<t;
-    }else{
-    	cout<<"NO\n";
-    }
-	
+	// pq.push({0, 0});
+
+	/*dfs(n-1);
+	dfs2(0);*/
+
+	/*memset(d, 0xc0, sizeof(d));
+	d[0] = 0;*/
+
+	for(int i = 0; i<2*n; ++i){
+		bool ch = 0; 
+		loop(j, 0, n-1)
+			for(array<ll, 2> a: adj[j]){
+				// d[a[1]] = max(d[a[1]], d[j]+a[0]);
+				/*if(a[1]==n-1)
+					cout<<j<<" "<<d[j]+a[0]<<endl;*/
+				if(d[j]+a[0]<d[a[1]]){
+					// if(vis[a[1]] and vis2[a[1]])
+						// ch = 1;
+					d[a[1]]=d[j]+a[0];
+					p[a[1]]=j;
+					// cout<<a[1]<<" "<<d[a[1]]<<endl;
+					if(i == n-1){
+						cout<<"YES"<<endl;
+						vector<int> ans;
+						// cout<<u;
+						while(not vis[j]){
+							vis[j] = 1;
+							j = p[j];
+						}
+						int u = j;
+						ans.pb(u);
+						u=p[u];
+						while(u^j){
+							// cout<<" "<<u;
+							ans.pb(u);
+							u=p[u];
+						}
+						// cout<<" "<<u;
+						ans.pb(u);
+						reverse(ans.begin(), ans.end());
+						for(int a: ans)
+							cout<<a+1<<" "; 
+						return 0;
+					}
+				}
+
+			}
+
+			/*if(i>=n-1 and ch){
+				cout<<-1;
+				return 0;
+			}*/
+		
+		// ans[i] = d[n-1];
+	}
+
+	/*if(n>1 and ans[n-1]<ans[n-1])
+		cout<<-1;
+	else
+		cout<<ans[n-1];*/
+
+	// cout<<d[n-1];
+
+	cout<<"NO";
+
 
 	end = clock();
 	
